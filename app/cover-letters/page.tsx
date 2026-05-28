@@ -7,6 +7,7 @@ import CookieBanner from "@/components/CookieBanner";
 export const metadata: Metadata = {
   title: "Free Cover Letter Templates 2025 – Download Word | Jobnique",
   description: "Download free professional cover letter templates. Examples for every job type, experience level and industry. Word format, instantly editable.",
+  alternates: { canonical: "https://www.jobnique.com/cover-letters" },
 };
 
 const letters = [

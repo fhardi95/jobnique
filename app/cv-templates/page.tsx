@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "Free CV Templates 2025 – Download Word & PDF | Jobnique",
   description: "Download free professional CV templates and cover letter examples. ATS-friendly formats for every profession. Word and PDF format available.",
   keywords: "free CV templates, CV examples, resume templates, cover letter template, download CV",
+  alternates: { canonical: "https://www.jobnique.com/cv-templates" },
 };
 
 const cvTemplates = [

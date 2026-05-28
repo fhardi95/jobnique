@@ -15,7 +15,6 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image", title: "Jobnique", description: "Find your next job on Jobnique" },
   robots: { index: true, follow: true },
-  alternates: { canonical: "https://www.jobnique.com" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

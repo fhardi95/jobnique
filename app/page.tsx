@@ -6,6 +6,12 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Newsletter from "@/components/Newsletter";
 import CookieBanner from "@/components/CookieBanner";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Jobnique",
+  alternates: { canonical: "https://www.jobnique.com/" },
+};
 
 const JOB_TITLES = [
   "Software Engineer","Frontend Developer","Backend Developer","Full Stack Developer",

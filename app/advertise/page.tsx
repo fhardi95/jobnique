@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Advertise with Jobnique – Reach Qualified Job Seekers",
   description: "Advertise your brand, services, or job listings on Jobnique. Reach millions of active job seekers with targeted advertising solutions.",
+  alternates: { canonical: "https://www.jobnique.com/advertise" },
 };
 
 export default function Advertise() {

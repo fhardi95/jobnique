@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
-// GET /api/resumes — list user's resumes
 export async function GET(req: NextRequest) {
+  const supabase = getClient();
   const userId = req.headers.get("x-user-id");
   if (!userId) return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
 
@@ -21,8 +23,8 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ resumes: data });
 }
 
-// POST /api/resumes — create or update a resume
 export async function POST(req: NextRequest) {
+  const supabase = getClient();
   const userId = req.headers.get("x-user-id");
   if (!userId) return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
 
@@ -30,7 +32,6 @@ export async function POST(req: NextRequest) {
   const { id, title, templateId, data } = body;
 
   if (id) {
-    // Update existing
     const { data: updated, error } = await supabase
       .from("resumes")
       .update({ title, template_id: templateId, data })
@@ -41,7 +42,6 @@ export async function POST(req: NextRequest) {
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-    // Save version snapshot
     await supabase.from("resume_versions").insert({
       resume_id: id,
       data,
@@ -51,7 +51,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ resume: updated });
   }
 
-  // Create new
   const { data: created, error } = await supabase
     .from("resumes")
     .insert({ user_id: userId, title: title || "My Resume", template_id: templateId, data })

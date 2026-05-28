@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "About Jobnique – Your Career Growth Partner",
   description: "Learn about Jobnique's mission to connect job seekers with opportunities, providing free resources, job search tools, and career advice.",
+  alternates: { canonical: "https://www.jobnique.com/about" },
 };
 
 export default function About() {

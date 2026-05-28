@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Privacy Policy – Jobnique",
   description: "Jobnique's privacy policy explaining how we collect, use, and protect your personal information when you use our job search platform.",
+  alternates: { canonical: "https://www.jobnique.com/privacy-policy" },
 };
 
 export default function PrivacyPolicy() {

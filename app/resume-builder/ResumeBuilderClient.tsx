@@ -370,8 +370,8 @@ export default function ResumeBuilderClient() {
                 marginBottom: 20,
                 letterSpacing: "-0.5px",
               }}>
-                Build a Resume<br />
-                <span style={{ color: "#f97316" }}>That Gets You Hired</span>
+                AI Resume Builder<br />
+                <span style={{ color: "#f97316" }}>This resume builder gets you hired faster</span>
               </h1>
 
               <p style={{

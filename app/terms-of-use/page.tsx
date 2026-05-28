@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Terms of Use – Jobnique",
   description: "Jobnique's Terms of Use governing your use of our job search platform and services.",
+  alternates: { canonical: "https://www.jobnique.com/terms-of-use" },
 };
 
 export default function TermsOfUse() {

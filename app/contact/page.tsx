@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Contact Jobnique – Get Support & Partnership Inquiries",
   description: "Contact Jobnique for support, partnership opportunities, advertising inquiries, or general questions about our job search platform.",
+  alternates: { canonical: "https://www.jobnique.com/contact" },
 };
 
 export default function Contact() {

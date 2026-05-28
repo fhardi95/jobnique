@@ -3,6 +3,12 @@ import { useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Jobnique",
+  alternates: { canonical: "https://www.jobnique.com/post-a-job" },
+};
 
 const JOB_CATEGORIES = [
   "Accounting & Finance",

@@ -6,9 +6,10 @@ import CookieBanner from "@/components/CookieBanner";
 import PaycheckCalculator from "./PaycheckCalculator";
 
 export const metadata: Metadata = {
-  title: "US Take-Home Pay Calculator 2024 – After-Tax Salary | Jobnique",
-  description: "Calculate your exact take-home pay after federal tax, state tax, Social Security, Medicare and other deductions. Free US paycheck calculator for 2024.",
-  keywords: "take home pay calculator, paycheck calculator, after tax salary calculator, net pay calculator USA, salary calculator 2024",
+  title: "US Take-Home Pay Calculator 2026 – After-Tax Salary",
+  description: "Calculate your exact take-home pay after federal tax, state tax, Social Security, Medicare and other deductions. Free US paycheck calculator for 2026.",
+  keywords: "take home pay calculator, paycheck calculator, after tax salary calculator, net pay calculator USA, salary calculator 2026",
+  alternates: { canonical: "https://www.jobnique.com/paycheck-calculator" },
 };
 
 export default function PaycheckPage() {
@@ -18,7 +19,7 @@ export default function PaycheckPage() {
       <CookieBanner />
       <div style={{ background: "linear-gradient(135deg,#1e3a8a 0%,#1a56db 100%)", padding: "48px 20px 40px", color: "#fff", textAlign: "center" }}>
         <span style={{ display: "inline-block", background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "4px 16px", fontSize: 13, fontWeight: 500, marginBottom: 16 }}>
-          🇺🇸 Updated for 2024 tax year
+          🇺🇸 Updated for 2026 tax year
         </span>
         <h1 style={{ fontFamily: "'DM Serif Display',serif", fontSize: "clamp(28px,4vw,46px)", marginBottom: 12, lineHeight: 1.2 }}>
           US Take-Home Pay Calculator
