@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 
 /* ──────────────────────────────────────────────
    TYPES
@@ -108,13 +108,8 @@ export default function ResumeBuilderClient() {
   const [step, setStep] = useState<Step>("builder");
   const [resume, setResume] = useState<ResumeData>(EMPTY_RESUME);
   const [selectedPlan, setSelectedPlan] = useState<Plan>("7day");
-  const [paid, setPaid] = useState(false);
 
   // Payment form state
-  const [cardNum, setCardNum] = useState("");
-  const [cardExp, setCardExp] = useState("");
-  const [cardCvc, setCardCvc] = useState("");
-  const [cardName, setCardName] = useState("");
   const [payEmail, setPayEmail] = useState("");
   const [payError, setPayError] = useState("");
   const [payLoading, setPayLoading] = useState(false);
@@ -122,11 +117,12 @@ export default function ResumeBuilderClient() {
   // Email CV
   const [emailCVAddr, setEmailCVAddr] = useState("");
   const [emailSent, setEmailSent] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [emailError, setEmailError] = useState("");
 
   // Tooltip
   const [tooltip, setTooltip] = useState(false);
 
-  // Preview scroll sync
   const previewRef = useRef<HTMLDivElement>(null);
 
   /* ── resume field helpers ── */
@@ -147,26 +143,32 @@ export default function ResumeBuilderClient() {
       return { ...p, education: e };
     });
 
-  /* ── card formatting ── */
-  const fmtCard = (v: string) =>
-    v.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
-  const fmtExp = (v: string) => {
-    const d = v.replace(/\D/g, "").slice(0, 4);
-    return d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d;
-  };
-
-  /* ── mock payment ── */
+  /* ── Stripe payment — redirects to Stripe Checkout ── */
   const handlePay = async () => {
-    if (!cardNum.replace(/\s/g, "") || !cardExp || !cardCvc || !cardName || !payEmail) {
-      setPayError("Please fill in all payment fields.");
+    if (!payEmail) {
+      setPayError("Please enter your email address.");
       return;
     }
     setPayError("");
     setPayLoading(true);
-    await new Promise(r => setTimeout(r, 2200));
-    setPayLoading(false);
-    setPaid(true);
-    setStep("download");
+
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: selectedPlan, email: payEmail }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setPayError(data.error ?? "Payment failed. Please try again.");
+        setPayLoading(false);
+      }
+    } catch {
+      setPayError("Network error. Please try again.");
+      setPayLoading(false);
+    }
   };
 
   /* ── PDF download via print ── */
@@ -190,11 +192,28 @@ export default function ResumeBuilderClient() {
     a.click();
   };
 
-  /* ── Email CV (mock) ── */
+  /* ── Email CV via Brevo ── */
   const handleEmailCV = async () => {
     if (!emailCVAddr) return;
-    await new Promise(r => setTimeout(r, 1200));
-    setEmailSent(true);
+    setEmailLoading(true);
+    setEmailError("");
+    try {
+      const html = buildResumeHTML(resume);
+      const res = await fetch("/api/send-cv", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: emailCVAddr, resumeHTML: html, name: resume.name }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setEmailSent(true);
+      } else {
+        setEmailError(data.error ?? "Failed to send. Please try again.");
+      }
+    } catch {
+      setEmailError("Network error. Please try again.");
+    }
+    setEmailLoading(false);
   };
 
   /* ── Step labels ── */
@@ -208,7 +227,6 @@ export default function ResumeBuilderClient() {
 
   return (
     <div style={{ fontFamily: "'DM Sans', system-ui, sans-serif", background: "#f8f9fc", minHeight: "100vh" }}>
-      {/* IMPORT FONT */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
         * { box-sizing: border-box; }
@@ -286,11 +304,7 @@ export default function ResumeBuilderClient() {
       {/* ═══════════════════════════ STEP: BUILDER ══════════════════════════════ */}
       {step === "builder" && (
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px", display: "flex", gap: 24, alignItems: "flex-start" }}>
-
-          {/* LEFT: Form */}
           <div style={{ flex: "0 0 420px", minWidth: 0 }} className="fade-up">
-
-            {/* Personal Info */}
             <div className="section-card">
               <p className="section-title">Personal Information</p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -312,15 +326,12 @@ export default function ResumeBuilderClient() {
               </div>
             </div>
 
-            {/* Summary */}
             <div className="section-card">
               <p className="section-title">Professional Summary</p>
               <textarea className="form-input" rows={4} placeholder="A results-driven professional with 5+ years experience in…"
-                value={resume.summary} onChange={e => setField("summary", e.target.value)}
-                style={{ resize: "vertical" }} />
+                value={resume.summary} onChange={e => setField("summary", e.target.value)} style={{ resize: "vertical" }} />
             </div>
 
-            {/* Experience */}
             <div className="section-card">
               <p className="section-title">Work Experience</p>
               {resume.experience.map((exp, i) => (
@@ -349,7 +360,6 @@ export default function ResumeBuilderClient() {
               </button>
             </div>
 
-            {/* Education */}
             <div className="section-card">
               <p className="section-title">Education</p>
               {resume.education.map((edu, i) => (
@@ -374,7 +384,6 @@ export default function ResumeBuilderClient() {
               </button>
             </div>
 
-            {/* Skills */}
             <div className="section-card">
               <p className="section-title">Skills</p>
               <textarea className="form-input" rows={3} placeholder="React, TypeScript, Node.js, Product Strategy, Agile, SQL…"
@@ -382,8 +391,7 @@ export default function ResumeBuilderClient() {
               <p style={{ fontSize: "0.75rem", color: "#94a3b8", marginTop: 6 }}>Separate skills with commas</p>
             </div>
 
-            <button className="btn-primary" style={{ width: "100%", padding: "16px", fontSize: "1.05rem" }}
-              onClick={() => setStep("plans")}>
+            <button className="btn-primary" style={{ width: "100%", padding: "16px", fontSize: "1.05rem" }} onClick={() => setStep("plans")}>
               Continue to Choose Plan →
             </button>
           </div>
@@ -396,62 +404,53 @@ export default function ResumeBuilderClient() {
                 <span style={{ color: "rgba(255,255,255,.5)", fontSize: "0.72rem" }}>Updates as you type</span>
               </div>
               <div ref={previewRef} style={{ padding: "32px 28px", maxHeight: "calc(100vh - 200px)", overflowY: "auto" }}>
-                {/* Resume preview */}
                 <div style={{ fontFamily: "Georgia, serif" }}>
                   <h1 style={{ fontSize: "1.8rem", margin: "0 0 2px", color: "#0f3460" }}>{resume.name || "Your Name"}</h1>
                   <p style={{ margin: "0 0 2px", color: "#555", fontSize: "1rem" }}>{resume.title || "Job Title"}</p>
                   <p style={{ margin: "0 0 16px", color: "#777", fontSize: "0.82rem" }}>
                     {[resume.email, resume.phone, resume.location].filter(Boolean).join(" · ") || "email · phone · location"}
                   </p>
-                  {resume.summary && (
-                    <>
-                      <hr style={{ border: "none", borderTop: "2px solid #0f3460", margin: "0 0 10px" }} />
-                      <h2 style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: ".12em", color: "#0f3460", margin: "0 0 6px" }}>Summary</h2>
-                      <p style={{ fontSize: "0.84rem", lineHeight: 1.6, margin: "0 0 14px" }}>{resume.summary}</p>
-                    </>
-                  )}
-                  {resume.experience.some(e => e.role || e.company) && (
-                    <>
-                      <hr style={{ border: "none", borderTop: "2px solid #0f3460", margin: "0 0 10px" }} />
-                      <h2 style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: ".12em", color: "#0f3460", margin: "0 0 10px" }}>Experience</h2>
-                      {resume.experience.filter(e => e.role || e.company).map((e, i) => (
-                        <div key={i} style={{ marginBottom: 12 }}>
-                          <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: "0.9rem" }}>
-                            <span>{e.role}</span><span style={{ color: "#555" }}>{e.period}</span>
-                          </div>
-                          <div style={{ color: "#666", fontSize: "0.82rem", marginBottom: 4 }}>{e.company}</div>
-                          {e.bullets && <ul style={{ margin: "4px 0", paddingLeft: 16 }}>
-                            {e.bullets.split("\n").filter(Boolean).map((b, j) => (
-                              <li key={j} style={{ fontSize: "0.82rem", marginBottom: 2 }}>{b.replace(/^[-•]\s*/, "")}</li>
-                            ))}
-                          </ul>}
+                  {resume.summary && (<>
+                    <hr style={{ border: "none", borderTop: "2px solid #0f3460", margin: "0 0 10px" }} />
+                    <h2 style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: ".12em", color: "#0f3460", margin: "0 0 6px" }}>Summary</h2>
+                    <p style={{ fontSize: "0.84rem", lineHeight: 1.6, margin: "0 0 14px" }}>{resume.summary}</p>
+                  </>)}
+                  {resume.experience.some(e => e.role || e.company) && (<>
+                    <hr style={{ border: "none", borderTop: "2px solid #0f3460", margin: "0 0 10px" }} />
+                    <h2 style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: ".12em", color: "#0f3460", margin: "0 0 10px" }}>Experience</h2>
+                    {resume.experience.filter(e => e.role || e.company).map((e, i) => (
+                      <div key={i} style={{ marginBottom: 12 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: "0.9rem" }}>
+                          <span>{e.role}</span><span style={{ color: "#555" }}>{e.period}</span>
                         </div>
-                      ))}
-                    </>
-                  )}
-                  {resume.education.some(e => e.degree || e.school) && (
-                    <>
-                      <hr style={{ border: "none", borderTop: "2px solid #0f3460", margin: "0 0 10px" }} />
-                      <h2 style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: ".12em", color: "#0f3460", margin: "0 0 8px" }}>Education</h2>
-                      {resume.education.filter(e => e.degree || e.school).map((e, i) => (
-                        <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", marginBottom: 6 }}>
-                          <span><strong>{e.degree}</strong>{e.school ? ` — ${e.school}` : ""}</span>
-                          <span style={{ color: "#555" }}>{e.year}</span>
-                        </div>
-                      ))}
-                    </>
-                  )}
-                  {resume.skills && (
-                    <>
-                      <hr style={{ border: "none", borderTop: "2px solid #0f3460", margin: "0 0 10px" }} />
-                      <h2 style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: ".12em", color: "#0f3460", margin: "0 0 8px" }}>Skills</h2>
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                        {resume.skills.split(",").filter(Boolean).map((s, i) => (
-                          <span key={i} style={{ background: "#e8f0fe", borderRadius: 4, padding: "3px 10px", fontSize: "0.78rem", color: "#1a56db" }}>{s.trim()}</span>
-                        ))}
+                        <div style={{ color: "#666", fontSize: "0.82rem", marginBottom: 4 }}>{e.company}</div>
+                        {e.bullets && <ul style={{ margin: "4px 0", paddingLeft: 16 }}>
+                          {e.bullets.split("\n").filter(Boolean).map((b, j) => (
+                            <li key={j} style={{ fontSize: "0.82rem", marginBottom: 2 }}>{b.replace(/^[-•]\s*/, "")}</li>
+                          ))}
+                        </ul>}
                       </div>
-                    </>
-                  )}
+                    ))}
+                  </>)}
+                  {resume.education.some(e => e.degree || e.school) && (<>
+                    <hr style={{ border: "none", borderTop: "2px solid #0f3460", margin: "0 0 10px" }} />
+                    <h2 style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: ".12em", color: "#0f3460", margin: "0 0 8px" }}>Education</h2>
+                    {resume.education.filter(e => e.degree || e.school).map((e, i) => (
+                      <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", marginBottom: 6 }}>
+                        <span><strong>{e.degree}</strong>{e.school ? ` — ${e.school}` : ""}</span>
+                        <span style={{ color: "#555" }}>{e.year}</span>
+                      </div>
+                    ))}
+                  </>)}
+                  {resume.skills && (<>
+                    <hr style={{ border: "none", borderTop: "2px solid #0f3460", margin: "0 0 10px" }} />
+                    <h2 style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: ".12em", color: "#0f3460", margin: "0 0 8px" }}>Skills</h2>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      {resume.skills.split(",").filter(Boolean).map((s, i) => (
+                        <span key={i} style={{ background: "#e8f0fe", borderRadius: 4, padding: "3px 10px", fontSize: "0.78rem", color: "#1a56db" }}>{s.trim()}</span>
+                      ))}
+                    </div>
+                  </>)}
                 </div>
               </div>
             </div>
@@ -468,9 +467,7 @@ export default function ResumeBuilderClient() {
           <p style={{ textAlign: "center", color: "#64748b", marginBottom: 36 }}>Choose your plan to download your resume and access all features</p>
 
           <div style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
-            {/* Plan cards + perks */}
             <div style={{ flex: "0 0 340px" }}>
-              {/* Tooltip */}
               <div style={{ position: "relative", marginBottom: 12 }}>
                 {tooltip && (
                   <div style={{ position: "absolute", top: -48, left: 12, background: "#1a1a2e", color: "#fff", borderRadius: 8, padding: "8px 14px", fontSize: "0.82rem", fontWeight: 600, whiteSpace: "nowrap", zIndex: 10, boxShadow: "0 4px 16px rgba(0,0,0,.2)" }}>
@@ -480,19 +477,13 @@ export default function ResumeBuilderClient() {
                 )}
               </div>
 
-              {/* Plans */}
               <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
                 {PLANS.map(plan => (
                   <div key={plan.id}
                     onClick={() => setSelectedPlan(plan.id)}
                     onMouseEnter={() => plan.tooltip ? setTooltip(true) : undefined}
                     onMouseLeave={() => setTooltip(false)}
-                    style={{
-                      flex: 1, border: `2px solid ${selectedPlan === plan.id ? "#1a56db" : "#e2e8f0"}`,
-                      borderRadius: 12, padding: "18px 14px", cursor: "pointer",
-                      background: selectedPlan === plan.id ? "#eff6ff" : "#fff",
-                      transition: "all .18s", position: "relative",
-                    }}>
+                    style={{ flex: 1, border: `2px solid ${selectedPlan === plan.id ? "#1a56db" : "#e2e8f0"}`, borderRadius: 12, padding: "18px 14px", cursor: "pointer", background: selectedPlan === plan.id ? "#eff6ff" : "#fff", transition: "all .18s", position: "relative" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
                       <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${selectedPlan === plan.id ? "#1a56db" : "#e2e8f0"}`, background: selectedPlan === plan.id ? "#1a56db" : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>
                         {selectedPlan === plan.id && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff" }} />}
@@ -512,7 +503,6 @@ export default function ResumeBuilderClient() {
                 ))}
               </div>
 
-              {/* Perks list */}
               <div className="section-card" style={{ marginTop: 20 }}>
                 {[
                   { text: "Unlimited resumes and cover letters", bold: "Unlimited" },
@@ -525,27 +515,22 @@ export default function ResumeBuilderClient() {
                   <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 12 }}>
                     <span style={{ color: "#1a56db", fontSize: "1rem", flexShrink: 0, marginTop: 1 }}>✓</span>
                     <span style={{ fontSize: "0.87rem", color: "#334155" }}>
-                      {item.bold ? (
-                        <><strong>{item.bold}</strong>{item.text.replace(item.bold, "")}</>
-                      ) : item.text}
+                      {item.bold ? <><strong>{item.bold}</strong>{item.text.replace(item.bold, "")}</> : item.text}
                     </span>
                   </div>
                 ))}
               </div>
 
-              {/* Trustpilot */}
               <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "16px 0" }}>
                 <strong style={{ fontSize: "0.95rem" }}>Excellent</strong>
                 <div style={{ display: "flex", gap: 2 }}>
-                  {[1,2,3,4].map(i => <span key={i} style={{ color: "#00b67a", fontSize: "1.1rem" }}>★</span>)}
-                  <span style={{ color: "#00b67a", fontSize: "1.1rem" }}>★</span>
+                  {[1,2,3,4,5].map(i => <span key={i} style={{ color: "#00b67a", fontSize: "1.1rem" }}>★</span>)}
                 </div>
                 <span style={{ fontSize: "0.8rem", color: "#64748b" }}><strong>55,638</strong> reviews on</span>
                 <span style={{ color: "#00b67a", fontWeight: 800, fontSize: "0.9rem" }}>Trustpilot</span>
               </div>
             </div>
 
-            {/* Benefits grid + CTA */}
             <div style={{ flex: 1 }}>
               <div className="section-card">
                 <p style={{ fontWeight: 700, fontSize: "1rem", marginBottom: 18, color: "#0f1729" }}>All Subscription Benefits</p>
@@ -560,7 +545,6 @@ export default function ResumeBuilderClient() {
                     </div>
                   ))}
                 </div>
-
                 <button className="btn-green" style={{ marginTop: 22 }} onClick={() => setStep("payment")}>
                   Continue →
                 </button>
@@ -570,13 +554,10 @@ export default function ResumeBuilderClient() {
                 </p>
               </div>
 
-              {/* Hired by */}
               <div style={{ marginTop: 24, textAlign: "center" }}>
                 <p style={{ fontSize: "0.85rem", color: "#64748b", marginBottom: 14, fontWeight: 600 }}>Our customers have been hired by:</p>
                 <div style={{ display: "flex", gap: 20, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
-                  {HIRED_BY.map(c => (
-                    <span key={c} style={{ fontSize: "0.88rem", fontWeight: 700, color: "#334155", opacity: .75 }}>{c}</span>
-                  ))}
+                  {HIRED_BY.map(c => <span key={c} style={{ fontSize: "0.88rem", fontWeight: 700, color: "#334155", opacity: .75 }}>{c}</span>)}
                 </div>
               </div>
             </div>
@@ -589,18 +570,13 @@ export default function ResumeBuilderClient() {
         <div style={{ maxWidth: 580, margin: "0 auto", padding: "40px 24px" }} className="fade-up">
           <h1 style={{ fontSize: "1.75rem", fontWeight: 800, color: "#0f1729", margin: "0 0 6px" }}>Payment details</h1>
           <p style={{ color: "#64748b", marginBottom: 28 }}>
-            {selectedPlan === "7day"
-              ? "Start your 7-day trial for £2.95. Cancel anytime."
-              : "Subscribe quarterly at £16.65/mo. Cancel anytime."}
+            {selectedPlan === "7day" ? "Start your 7-day trial for £2.95. Cancel anytime." : "Subscribe quarterly at £16.65/mo. Cancel anytime."}
           </p>
 
-          {/* Order summary */}
           <div style={{ background: "#f0f7ff", border: "1.5px solid #bfdbfe", borderRadius: 12, padding: "16px 20px", marginBottom: 24 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div>
-                <p style={{ fontWeight: 700, color: "#0f1729", margin: 0 }}>
-                  {selectedPlan === "7day" ? "7-Day Trial" : "Quarterly Plan"}
-                </p>
+                <p style={{ fontWeight: 700, color: "#0f1729", margin: 0 }}>{selectedPlan === "7day" ? "7-Day Trial" : "Quarterly Plan"}</p>
                 <p style={{ color: "#64748b", fontSize: "0.82rem", margin: "2px 0 0" }}>
                   {selectedPlan === "7day" ? "Renews at £19.95/mo after trial" : "Billed every 3 months"}
                 </p>
@@ -611,9 +587,7 @@ export default function ResumeBuilderClient() {
             </div>
           </div>
 
-          {/* Card form */}
           <div className="section-card">
-            {/* Stripe badge */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, padding: "8px 12px", background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0" }}>
               <svg width="42" height="18" viewBox="0 0 42 18" fill="none"><path d="M5.25 6.3c0-.84.69-1.17 1.83-1.17 1.63 0 3.69.5 5.32 1.39V2.46C10.72 1.72 8.96 1.5 7.08 1.5 3.15 1.5.75 3.48.75 6.51c0 4.68 6.45 3.93 6.45 5.94 0 .99-.87 1.32-2.07 1.32-1.79 0-4.08-.75-5.88-1.74v4.11c2 .87 4.01 1.23 5.88 1.23 4.02 0 6.78-2.01 6.78-5.1C11.91 7.59 5.25 8.49 5.25 6.3zM19.32 1.5l-3.33 16.2h4.38l3.33-16.2h-4.38zM30 5.01c-1.5 0-2.52.69-3.06 1.17l-.21-.93h-3.87L20.97 18h4.35l.03-.18 1.11-5.52c.3-1.53.93-2.46 2.49-2.46.99 0 1.41.48 1.41 1.47 0 .3-.03.6-.09.87L29.25 18h4.35l1.05-5.94c.09-.48.15-.99.15-1.47 0-2.73-1.44-5.58-4.8-5.58z" fill="#635BFF"/></svg>
               <span style={{ fontSize: "0.78rem", color: "#64748b" }}>Secured by Stripe · SSL encrypted</span>
@@ -624,27 +598,12 @@ export default function ResumeBuilderClient() {
               </div>
             </div>
 
-            <div style={{ marginBottom: 14 }}>
+            <div style={{ marginBottom: 20 }}>
               <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: 4 }}>Email</label>
               <input className="form-input" type="email" placeholder="jane@email.com" value={payEmail} onChange={e => setPayEmail(e.target.value)} />
-            </div>
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: 4 }}>Cardholder Name</label>
-              <input className="form-input" placeholder="Jane Smith" value={cardName} onChange={e => setCardName(e.target.value)} />
-            </div>
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: 4 }}>Card Number</label>
-              <input className="form-input" placeholder="1234 5678 9012 3456" value={cardNum} onChange={e => setCardNum(fmtCard(e.target.value))} maxLength={19} />
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
-              <div>
-                <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: 4 }}>Expiry (MM/YY)</label>
-                <input className="form-input" placeholder="08/28" value={cardExp} onChange={e => setCardExp(fmtExp(e.target.value))} maxLength={5} />
-              </div>
-              <div>
-                <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: 4 }}>CVC</label>
-                <input className="form-input" placeholder="123" value={cardCvc} onChange={e => setCardCvc(e.target.value.replace(/\D/g,"").slice(0,4))} maxLength={4} />
-              </div>
+              <p style={{ fontSize: "0.75rem", color: "#94a3b8", marginTop: 6 }}>
+                You will be redirected to Stripe&apos;s secure checkout page to enter your card details.
+              </p>
             </div>
 
             {payError && (
@@ -657,9 +616,9 @@ export default function ResumeBuilderClient() {
               {payLoading ? (
                 <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                   <span style={{ width: 16, height: 16, borderRadius: "50%", border: "2px solid rgba(255,255,255,.3)", borderTopColor: "#fff", animation: "spin 0.7s linear infinite", display: "inline-block" }} />
-                  Processing…
+                  Redirecting to Stripe…
                 </span>
-              ) : `Pay ${selectedPlan === "7day" ? "£2.95" : "£16.65"} & Download Resume`}
+              ) : `Pay ${selectedPlan === "7day" ? "£2.95" : "£16.65"} with Stripe →`}
             </button>
 
             <div style={{ display: "flex", justifyContent: "center", gap: 16, marginTop: 14 }}>
@@ -669,7 +628,7 @@ export default function ResumeBuilderClient() {
             </div>
           </div>
 
-          <button onClick={() => setStep("plans")} style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: "0.85rem", marginTop: 16, display: "block", margin: "16px auto 0" }}>
+          <button onClick={() => setStep("plans")} style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: "0.85rem", display: "block", margin: "16px auto 0" }}>
             ← Back to plans
           </button>
         </div>
@@ -678,20 +637,15 @@ export default function ResumeBuilderClient() {
       {/* ═══════════════════════════ STEP: DOWNLOAD ═════════════════════════════ */}
       {step === "download" && (
         <div style={{ maxWidth: 640, margin: "0 auto", padding: "40px 24px" }} className="fade-up">
-
-          {/* Success banner */}
           <div style={{ background: "linear-gradient(135deg, #16a34a 0%, #15803d 100%)", borderRadius: 14, padding: "24px 28px", marginBottom: 28, color: "#fff", textAlign: "center" }}>
             <div style={{ fontSize: "2.5rem", marginBottom: 8 }}>🎉</div>
             <h2 style={{ fontSize: "1.4rem", fontWeight: 800, margin: "0 0 4px" }}>Payment successful!</h2>
             <p style={{ opacity: .85, margin: 0, fontSize: "0.9rem" }}>Your resume is ready to download. You now have full access to all features.</p>
           </div>
 
-          {/* Download buttons */}
           <div className="section-card" style={{ marginBottom: 20 }}>
             <p style={{ fontWeight: 700, fontSize: "1rem", color: "#0f1729", marginBottom: 16 }}>📥 Download Your Resume</p>
-
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              {/* PDF */}
               <button onClick={downloadPDF}
                 style={{ flex: 1, minWidth: 160, background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)", color: "#fff", border: "none", borderRadius: 10, padding: "16px 20px", cursor: "pointer", fontWeight: 700, fontSize: "0.95rem", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, transition: "all .18s" }}
                 onMouseEnter={e => (e.currentTarget.style.transform = "translateY(-2px)")}
@@ -699,8 +653,6 @@ export default function ResumeBuilderClient() {
                 <span style={{ fontSize: "1.3rem" }}>📄</span>
                 Download PDF
               </button>
-
-              {/* DOC */}
               <button onClick={downloadDOC}
                 style={{ flex: 1, minWidth: 160, background: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)", color: "#fff", border: "none", borderRadius: 10, padding: "16px 20px", cursor: "pointer", fontWeight: 700, fontSize: "0.95rem", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, transition: "all .18s" }}
                 onMouseEnter={e => (e.currentTarget.style.transform = "translateY(-2px)")}
@@ -709,26 +661,33 @@ export default function ResumeBuilderClient() {
                 Download .DOC
               </button>
             </div>
-
             <p style={{ fontSize: "0.75rem", color: "#94a3b8", marginTop: 10, textAlign: "center" }}>
-              PDF opens your browser print dialog — choose "Save as PDF". DOC downloads immediately.
+              PDF opens your browser print dialog — choose &quot;Save as PDF&quot;. DOC downloads immediately.
             </p>
           </div>
 
-          {/* Email CV */}
           <div className="section-card" style={{ marginBottom: 20 }}>
             <p style={{ fontWeight: 700, fontSize: "1rem", color: "#0f1729", marginBottom: 6 }}>✉️ Receive CV by Email</p>
-            <p style={{ fontSize: "0.85rem", color: "#64748b", marginBottom: 14 }}>We&apos;ll send your resume as a PDF attachment to your inbox.</p>
+            <p style={{ fontSize: "0.85rem", color: "#64748b", marginBottom: 14 }}>We&apos;ll send your resume as an HTML attachment to your inbox.</p>
             {!emailSent ? (
-              <div style={{ display: "flex", gap: 10 }}>
-                <input className="form-input" type="email" placeholder="your@email.com" value={emailCVAddr}
-                  onChange={e => setEmailCVAddr(e.target.value)}
-                  style={{ flex: 1 }} />
-                <button onClick={handleEmailCV}
-                  className="btn-primary" style={{ flexShrink: 0, padding: "10px 20px", fontSize: "0.88rem" }}>
-                  Send CV
-                </button>
-              </div>
+              <>
+                <div style={{ display: "flex", gap: 10 }}>
+                  <input className="form-input" type="email" placeholder="your@email.com" value={emailCVAddr}
+                    onChange={e => setEmailCVAddr(e.target.value)} style={{ flex: 1 }} />
+                  <button onClick={handleEmailCV} disabled={emailLoading}
+                    className="btn-primary" style={{ flexShrink: 0, padding: "10px 20px", fontSize: "0.88rem", opacity: emailLoading ? .8 : 1 }}>
+                    {emailLoading ? (
+                      <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span style={{ width: 12, height: 12, borderRadius: "50%", border: "2px solid rgba(255,255,255,.3)", borderTopColor: "#fff", animation: "spin 0.7s linear infinite", display: "inline-block" }} />
+                        Sending…
+                      </span>
+                    ) : "Send CV"}
+                  </button>
+                </div>
+                {emailError && (
+                  <p style={{ color: "#dc2626", fontSize: "0.82rem", marginTop: 8 }}>⚠️ {emailError}</p>
+                )}
+              </>
             ) : (
               <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, padding: "12px 16px", display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ color: "#16a34a", fontSize: "1.2rem" }}>✅</span>
@@ -737,7 +696,6 @@ export default function ResumeBuilderClient() {
             )}
           </div>
 
-          {/* What's next */}
           <div className="section-card">
             <p style={{ fontWeight: 700, fontSize: "1rem", color: "#0f1729", marginBottom: 14 }}>🚀 What&apos;s next?</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -757,11 +715,8 @@ export default function ResumeBuilderClient() {
             </div>
           </div>
 
-          {/* Edit again */}
           <div style={{ textAlign: "center", marginTop: 20 }}>
-            <button onClick={() => setStep("builder")} className="btn-outline">
-              ← Edit my resume
-            </button>
+            <button onClick={() => setStep("builder")} className="btn-outline">← Edit my resume</button>
           </div>
         </div>
       )}
