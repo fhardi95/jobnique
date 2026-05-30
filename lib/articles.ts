@@ -13,6 +13,196 @@ export type Article = {
 export const articles: Article[] = [
 
   {
+    slug: "how-to-negotiate-salary-job-offer",
+    title: "How to Negotiate Salary: 9 Expert Tips for 2026",
+    description: "Master salary negotiation with proven strategies that work in 2026. Learn what to say, when to negotiate, and how to get the offer you deserve.",
+    category: "Career Advice",
+    subcategory: "Salary",
+    readTime: 8,
+    featured: true,
+    section: "career-advice",
+    content: `## Why Salary Negotiation Matters More Than Ever in 2026
+
+Negotiating your salary isn't just about getting more money—it's about establishing your worth and setting the foundation for future earnings. Research shows that failing to negotiate your first job offer can cost you over $500,000 throughout your career. Yet 68% of American workers accept the first offer without negotiation.
+
+In 2026's competitive job market, employers expect candidates to negotiate. Companies typically offer 10-20% below their maximum budget, leaving room for discussion. If you don't negotiate, you're leaving money on the table that was already allocated for you.
+
+Before you start your next job search on jobnique.com/jobs, arm yourself with these nine expert negotiation strategies that actually work.
+
+## When to Negotiate Your Salary
+
+Timing is everything in salary negotiation. Here's exactly when to make your move:
+
+- **After receiving a written offer** - Never negotiate before you have an official offer in hand
+- **Before accepting the position** - Once you've accepted, your leverage disappears
+- **Within 2-3 business days** - Don't wait too long or seem overeager by responding immediately
+- **During annual reviews** - If you missed the initial negotiation, performance reviews offer another opportunity
+
+**Never discuss salary specifics during initial interviews.** When asked about salary expectations early on, deflect politely: "I'd prefer to learn more about the role and responsibilities before discussing compensation. What range has been budgeted for this position?"
+
+## Research Your Market Value First
+
+You cannot negotiate effectively without data. Before any salary discussion, invest time researching what you're actually worth:
+
+**Use multiple salary research tools** to get accurate ranges. Check jobnique.com/salaries for position-specific data across different US cities and experience levels. Cross-reference with Glassdoor, Payscale, and LinkedIn Salary Insights.
+
+**Consider these factors that impact your market value:**
+
+- Geographic location and cost of living adjustments
+- Years of relevant experience in your field
+- Specialized skills or certifications
+- Industry standards and company size
+- Current economic conditions and demand for your role
+
+For example, a Software Engineer with 5 years of experience might earn $95,000 in Austin but $140,000 in San Francisco for the identical role. A Digital Marketing Manager in New York City typically commands $85,000-$115,000 depending on company size and specific expertise.
+
+**Document your achievements.** Create a "brag sheet" listing quantifiable accomplishments: revenue generated, costs saved, projects completed, teams managed, or efficiency improvements. Numbers give you negotiating power.
+
+## Understand the Complete Compensation Package
+
+Salary is just one component of your total compensation. Smart negotiators look at the complete package:
+
+- **Base salary** - Your annual guaranteed income
+- **Bonuses** - Performance-based, signing, or annual bonuses
+- **Equity** - Stock options, RSUs, or profit-sharing plans
+- **Benefits** - Health insurance, dental, vision coverage
+- **Retirement** - 401(k) matching and vesting schedules
+- **Time off** - PTO, sick days, parental leave, sabbaticals
+- **Professional development** - Training budgets, conference attendance, tuition reimbursement
+- **Flexible work** - Remote options, flexible hours, work-from-home stipends
+- **Perks** - Commuter benefits, gym memberships, phone allowances
+
+Sometimes a lower base salary with exceptional benefits, equity, or work-life balance offers better overall value than a higher salary alone. Calculate the dollar value of each component to compare offers accurately.
+
+## The Exact Script: What to Say When Negotiating
+
+Many people know they should negotiate but freeze when it's time to actually speak up. Here's a proven script you can adapt:
+
+**Initial response to an offer:**
+
+"Thank you so much for this offer. I'm very excited about the opportunity to join [Company] and contribute to [specific project or goal]. I'd like to take a day or two to review the complete package. When would be a good time to discuss the details?"
+
+**Opening your negotiation:**
+
+"I'm genuinely thrilled about this role and I can see myself making significant contributions to your team. Based on my research of market rates for this position, along with my [X years of experience] and [specific relevant skills or achievements], I was expecting a salary in the range of $[X] to $[Y]. Is there flexibility in the current offer to move closer to that range?"
+
+**If they can't move on salary:**
+
+"I understand the salary constraints. Are there other areas where we might find flexibility? I'd be interested in discussing [signing bonus/additional PTO/professional development budget/remote work options/earlier performance review]."
+
+**Closing the negotiation:**
+
+"I appreciate your willingness to work with me on this. The revised offer of $[X] plus [other terms] works well for me. I'm excited to accept and get started on [start date]."
+
+## Never Give the First Number
+
+This is perhaps the most important rule in salary negotiation: **let the employer make the first offer whenever possible.**
+
+When you name a number first, you're negotiating against yourself. If you go too low, you've cost yourself money. If you go too high, you might price yourself out of consideration.
+
+**When asked "What are your salary expectations?" try these responses:**
+
+- "I'm focusing on finding the right role where I can make an impact. I'm confident we can agree on fair compensation once we both feel this is the right fit. What range has been budgeted for this position?"
+- "I'm open to discussing a salary that reflects the responsibilities of the role and my experience. What does your typical range look like for this level?"
+- "Before discussing specific numbers, I'd love to understand more about the complete compensation package and growth opportunities."
+
+If you absolutely must provide a number, give a range based on your research, with your target salary at the low end. For example: "Based on my experience and market research, I'm looking at opportunities in the $90,000 to $105,000 range."
+
+## Negotiate With Confidence, Not Desperation
+
+Your mindset during negotiation significantly impacts your success. Employers respect candidates who know their worth and can articulate it professionally.
+
+**Project confidence by:**
+
+- Speaking clearly and avoiding apologetic language ("I'm sorry to ask but...")
+- Using "I" statements that emphasize your value ("I bring..." "I've achieved...")
+- Maintaining a collaborative tone rather than adversarial
+- Expressing enthusiasm for the role while discussing compensation
+- Being willing to walk away if the offer doesn't meet your needs
+
+**Avoid desperate behavior like:**
+
+- Accepting immediately without any discussion
+- Over-explaining why you need more money (personal bills, debt, expenses)
+- Comparing yourself negatively to others
+- Making ultimatums or threats
+- Appearing inflexible or unwilling to collaborate
+
+Remember: negotiation is expected and respected. Companies budget for it. The worst they can say is no, and you'll be exactly where you started.
+
+## Know What's Negotiable Beyond Base Salary
+
+If an employer genuinely cannot move on base salary due to budget constraints or pay equity policies, focus on these highly negotiable components:
+
+**Signing bonuses** - One-time payments that don't affect future raises or budget structures. Often easier for companies to approve than salary increases.
+
+**Performance review timing** - Instead of waiting 12 months, negotiate a 6-month review with potential for increase based on performance.
+
+**Additional PTO** - An extra week of vacation time costs the company minimal money but significantly improves your quality of life.
+
+**Remote work flexibility** - If the role could be partially remote, negotiate work-from-home days to save commuting time and expenses.
+
+**Professional development** - Annual budgets for conferences, certifications, or courses that advance your skills.
+
+**Title upgrades** - A better title (Senior vs. Associate) positions you for better opportunities even if salary doesn't change immediately.
+
+**Relocation assistance** - If you're moving for the role, negotiate moving expenses, temporary housing, or cost-of-living adjustments.
+
+Use the jobnique.com/paycheck-calculator to understand how different salary offers translate to actual take-home pay in your state after taxes and deductions.
+
+## Common Negotiation Mistakes to Avoid
+
+Even experienced professionals make these critical errors that undermine their negotiating position:
+
+**Lying or exaggerating** - Never fabricate competing offers or misrepresent your current salary. Many employers verify this information, and dishonesty can cost you the offer entirely.
+
+**Negotiating too early** - Wait until you have a written offer. Discussing salary during initial interviews makes you seem money-focused rather than value-focused.
+
+**Making it personal** - Your rent, student loans, or cost of living aren't the employer's concern. Frame negotiations around your market value and contributions, not your expenses.
+
+**Accepting immediately** - Even if the first offer exceeds your expectations, take time to review it. Immediate acceptance suggests you would have taken less.
+
+**Burning bridges** - Stay professional even if negotiations fail. The hiring manager you decline today might offer you a better opportunity tomorrow.
+
+**Negotiating without leverage** - If you're desperate for any job, you have limited negotiating power. The best time to negotiate is when you have options or are currently employed.
+
+**Ignoring your gut** - If something feels wrong about the offer or the negotiation process, trust your instincts. It may signal broader issues with the company culture.
+
+## What to Do After Successful Negotiation
+
+Once you've reached an agreement, protect yourself and set the stage for future success:
+
+**Get everything in writing.** Verbal agreements mean nothing. Request a revised offer letter that includes:
+
+- Exact base salary and payment schedule
+- Bonus structure and eligibility requirements
+- Benefits start dates and coverage details
+- Stock options, vesting schedules, and equity details
+- Start date and any negotiated terms
+- Performance review timeline
+
+Review the written offer carefully before signing. If anything differs from your discussion, address it immediately.
+
+**Express gratitude and enthusiasm.** After negotiating, reaffirm your excitement about the role: "Thank you for working with me to reach an agreement that reflects my experience and the value I'll bring to the team. I'm looking forward to starting on [date] and contributing to [specific goal]."
+
+**Document your achievements from day one.** Start building your case for the next negotiation—your first performance review or annual raise. Track projects completed, revenue generated, problems solved, and positive feedback received.
+
+**Maintain the relationship.** Your hiring manager just advocated for paying you more. Show them they made the right decision by delivering exceptional work and being a team player.
+
+## Your Next Steps
+
+Salary negotiation is a learnable skill that pays dividends throughout your entire career. The confidence and strategies you develop now will serve you in every future job transition and raise discussion.
+
+Start practicing these techniques today. Even if you're currently employed, research your market value on jobnique.com/salaries and identify areas where you might be underpaid. Prepare your achievement documentation and consider timing for your next salary conversation.
+
+If you're currently job searching, browse positions on jobnique.com/jobs to understand current market offerings and practice applying these negotiation principles. Review our comprehensive interview preparation guides at jobnique.com/interview-tips to position yourself as a strong candidate who deserves top compensation.
+
+Remember: you don't get what you deserve, you get what you negotiate. Every conversation is an opportunity to advocate for your worth and build the career and lifestyle you want.
+
+The time you invest in mastering salary negotiation will yield returns for decades. Start your next opportunity from a position of strength, armed with data, confidence, and proven strategies that work.`,
+  },
+
+  {
     slug: "salary-negotiation-scripts-that-work-2026",
     title: "Salary Negotiation Scripts That Work in 2026",
     description: "Master salary negotiation with proven scripts for 2026. Get exact phrases, timing strategies, and responses that help you earn $5K-$15K more per year.",
