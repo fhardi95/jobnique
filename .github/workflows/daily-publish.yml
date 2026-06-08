@@ -1,0 +1,37 @@
+name: Daily Auto-Publish
+
+on:
+  schedule:
+    - cron: '0 8 * * *'   # 8am UTC every day
+  workflow_dispatch:        # also allow manual trigger
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish Article 1
+        run: |
+          curl -s -X POST https://www.jobnique.com/api/auto-publish \
+            -H "Content-Type: application/json" \
+            -H "x-agent-secret: ${{ secrets.AGENT_SECRET }}" \
+            -d "{}" | jq .
+
+      - name: Wait 30 seconds
+        run: sleep 30
+
+      - name: Publish Article 2
+        run: |
+          curl -s -X POST https://www.jobnique.com/api/auto-publish \
+            -H "Content-Type: application/json" \
+            -H "x-agent-secret: ${{ secrets.AGENT_SECRET }}" \
+            -d "{}" | jq .
+
+      - name: Wait 30 seconds
+        run: sleep 30
+
+      - name: Publish Article 3
+        run: |
+          curl -s -X POST https://www.jobnique.com/api/auto-publish \
+            -H "Content-Type: application/json" \
+            -H "x-agent-secret: ${{ secrets.AGENT_SECRET }}" \
+            -d "{}" | jq .
