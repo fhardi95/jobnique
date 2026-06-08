@@ -1,8 +1,16 @@
-import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+/**
+ * app/api/admin/job-postings/route.ts
+ * Security: requireAdminAuth guard added to all handlers.
+ */
 
-// GET — fetch all job postings, newest first
-export async function GET() {
+import { NextRequest, NextResponse } from "next/server";
+import { supabase } from "@/lib/supabase";
+import { requireAdminAuth } from "@/lib/admin-auth";
+
+export async function GET(req: NextRequest) {
+  const authError = requireAdminAuth(req);
+  if (authError) return authError;
+
   try {
     const { data, error } = await supabase
       .from("job_postings")
@@ -17,8 +25,10 @@ export async function GET() {
   }
 }
 
-// PATCH — update job posting status
-export async function PATCH(req: Request) {
+export async function PATCH(req: NextRequest) {
+  const authError = requireAdminAuth(req);
+  if (authError) return authError;
+
   try {
     const { id, status } = await req.json();
 

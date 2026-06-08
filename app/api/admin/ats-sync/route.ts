@@ -1,7 +1,15 @@
+/**
+ * app/api/admin/ats-sync/route.ts
+ * Security: requireAdminAuth guard added.
+ */
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { requireAdminAuth } from "@/lib/admin-auth";
 
-export async function POST() {
+export async function POST(req: NextRequest) {
+  const authError = requireAdminAuth(req);
+  if (authError) return authError;
+
   try {
     const res = await fetch(`${process.env.NEXTAUTH_URL}/api/ats-sync`, {
       method: "POST",
