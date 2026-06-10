@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/ats-sync",
+      "schedule": "0 */6 * * *"
+    }
+  ]
+}
