@@ -5,6 +5,7 @@ import { useSession, signOut } from "next-auth/react";
 
 const navLinks = [
   { href: "/jobs",          label: "Find Jobs" },
+  { href: "/jobs/cities",   label: "Jobs by City" },
   { href: "/career-advice", label: "Career Advice" },
   { href: "/salaries",      label: "Salaries" },
   { href: "/cv-templates",  label: "CV & Cover Letters" },
