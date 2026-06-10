@@ -1,9 +1,7 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useRef } from "react";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import { useRouter } from "next/navigation";
 
 interface Job {
   id: string;
@@ -18,12 +16,8 @@ interface Job {
   source?: string;
   contract_time?: string;
   created: string;
-  category?: { label: string };
+  category?: { label: string } | null;
   remote?: boolean;
-}
-
-interface Props {
-  job?: Job | null;
 }
 
 const formatSalary = (min?: number, max?: number) => {
@@ -61,12 +55,9 @@ function isSafeRedirectUrl(url: string): boolean {
 
 type Step = "details" | "apply";
 
-export default function JobDetailClient({ job: initialJob }: Props) {
-  const { id } = useParams<{ id: string }>();
+export default function JobDetailClient({ job }: { job: Job }) {
   const router = useRouter();
-  const [job, setJob]         = useState<Job | null>(initialJob ?? null);
-  const [loading, setLoading] = useState(!initialJob);
-  const [step, setStep]       = useState<Step>("details");
+  const [step, setStep] = useState<Step>("details");
 
   // Apply form state
   const [name, setName]               = useState("");
@@ -79,32 +70,10 @@ export default function JobDetailClient({ job: initialJob }: Props) {
   const [error, setError]             = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Is this an ATS job (Greenhouse / Lever / Workday)?
-  const isAtsJob = job?.source && job.source !== "adzuna";
-  const atsUrl   = job?.ats_apply_url || job?.redirect_url;
-
-useEffect(() => {
-  // Skip fetch if job was passed as a prop
-  if (initialJob) return;
-
-  const cached = sessionStorage.getItem(`job_${id}`);
-  if (cached) {
-    setJob(JSON.parse(cached));
-    setLoading(false);
-    return;
-  }
-
-  fetch(`/api/jobs/${id}`)
-    .then(r => r.json())
-    .then(data => {
-      if (data && data.id) {
-        setJob(data);
-        sessionStorage.setItem(`job_${id}`, JSON.stringify(data));
-      }
-      setLoading(false);
-    })
-    .catch(() => setLoading(false));
-}, [id, initialJob]);
+  const isAtsJob = job.source && job.source !== "adzuna";
+  const atsUrl   = job.ats_apply_url || job.redirect_url;
+  const salary   = formatSalary(job.salary_min, job.salary_max);
+  const paragraphs = formatDescription(job.description);
 
   async function handleApply(e: React.FormEvent) {
     e.preventDefault();
@@ -113,9 +82,9 @@ useEffect(() => {
     setSubmitting(true);
     try {
       const fd = new FormData();
-      fd.append("jobId",       id as string);
-      fd.append("jobTitle",    job?.title || "");
-      fd.append("company",     job?.company?.display_name || "");
+      fd.append("jobId",       job.id);
+      fd.append("jobTitle",    job.title);
+      fd.append("company",     job.company.display_name);
       fd.append("name",        name);
       fd.append("email",       email);
       fd.append("phone",       phone);
@@ -131,30 +100,8 @@ useEffect(() => {
     setSubmitting(false);
   }
 
-  if (loading) return (
-    <><Navbar /><div style={{ textAlign: "center", padding: "80px 20px", color: "#6b7280" }}>Loading job…</div><Footer /></>
-  );
-
-  if (!job) return (
-    <>
-      <Navbar />
-      <div style={{ textAlign: "center", padding: "80px 20px" }}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
-        <h1 style={{ fontSize: 22, fontWeight: 600, marginBottom: 8 }}>Job not found</h1>
-        <p style={{ color: "#6b7280", marginBottom: 24 }}>This listing may have expired.</p>
-        <Link href="/jobs" style={{ color: "#1a56db", fontWeight: 600 }}>← Back to jobs</Link>
-      </div>
-      <Footer />
-    </>
-  );
-
-  const salary     = formatSalary(job.salary_min, job.salary_max);
-  const paragraphs = formatDescription(job.description);
-
   return (
     <>
-      <Navbar />
-
       {/* Top bar */}
       <div style={{ background: "#1a56db", padding: "18px 20px" }}>
         <div className="container" style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -191,6 +138,11 @@ useEffect(() => {
                     {job.contract_time === "full_time" ? "⏱ Full-time" : "⏱ Part-time"}
                   </span>
                 )}
+                {job.remote && (
+                  <span style={{ background: "#f5f3ff", color: "#7c3aed", fontSize: 13, fontWeight: 600, padding: "4px 12px", borderRadius: 20 }}>
+                    🌐 Remote
+                  </span>
+                )}
                 {job.category?.label && (
                   <span style={{ background: "#fef9ec", color: "#b45309", fontSize: 13, fontWeight: 600, padding: "4px 12px", borderRadius: 20 }}>
                     {job.category.label}
@@ -204,7 +156,6 @@ useEffect(() => {
               </div>
             </div>
 
-            {/* Apply button — ATS jobs open external URL, Adzuna jobs use form */}
             {step === "details" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0 }}>
                 {isAtsJob && atsUrl && isSafeRedirectUrl(atsUrl) ? (
@@ -226,7 +177,7 @@ useEffect(() => {
           </div>
         </div>
 
-        {/* Tab nav — hide Apply tab for ATS jobs */}
+        {/* Tab nav */}
         <div style={{ display: "flex", gap: 0, borderBottom: "2px solid #e5e7eb", marginBottom: 28 }}>
           <button onClick={() => setStep("details")}
             style={{ background: "none", border: "none", padding: "10px 24px", fontSize: 14, fontWeight: 600, cursor: "pointer",
@@ -249,7 +200,6 @@ useEffect(() => {
         {/* ─── Job description tab ─── */}
         {step === "details" && (
           <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 14, padding: "28px 32px" }}>
-
             <div style={{ background: "#f8faff", border: "1px solid #dbeafe", borderRadius: 8, padding: "12px 16px", marginBottom: 24, fontSize: 13, color: "#374151", lineHeight: 1.6 }}>
               <strong>ℹ️ Please note:</strong> This listing is sourced from a third-party job board. <strong>Jobnique is a job search platform</strong> and is not the employer for this role. The hiring company is <strong>{job.company.display_name}</strong>.
             </div>
@@ -278,10 +228,9 @@ useEffect(() => {
           </div>
         )}
 
-        {/* ─── Apply tab (Adzuna jobs only) ─── */}
+        {/* ─── Apply tab ─── */}
         {step === "apply" && !isAtsJob && !submitted && (
           <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 14, padding: "28px 32px" }}>
-
             <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 10, padding: "14px 18px", marginBottom: 24, display: "flex", gap: 12, alignItems: "flex-start" }}>
               <span style={{ fontSize: 20, flexShrink: 0 }}>ℹ️</span>
               <div>
@@ -389,7 +338,6 @@ useEffect(() => {
         )}
 
       </div>
-      <Footer />
     </>
   );
 }
