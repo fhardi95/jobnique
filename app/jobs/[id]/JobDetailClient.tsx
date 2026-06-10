@@ -19,6 +19,11 @@ interface Job {
   contract_time?: string;
   created: string;
   category?: { label: string };
+  remote?: boolean;
+}
+
+interface Props {
+  job?: Job | null;
 }
 
 const formatSalary = (min?: number, max?: number) => {
@@ -56,11 +61,11 @@ function isSafeRedirectUrl(url: string): boolean {
 
 type Step = "details" | "apply";
 
-export default function JobDetailClient() {
+export default function JobDetailClient({ job: initialJob }: Props) {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const [job, setJob]         = useState<Job | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [job, setJob]         = useState<Job | null>(initialJob ?? null);
+  const [loading, setLoading] = useState(!initialJob);
   const [step, setStep]       = useState<Step>("details");
 
   // Apply form state
@@ -79,6 +84,9 @@ export default function JobDetailClient() {
   const atsUrl   = job?.ats_apply_url || job?.redirect_url;
 
 useEffect(() => {
+  // Skip fetch if job was passed as a prop
+  if (initialJob) return;
+
   const cached = sessionStorage.getItem(`job_${id}`);
   if (cached) {
     setJob(JSON.parse(cached));
@@ -96,7 +104,7 @@ useEffect(() => {
       setLoading(false);
     })
     .catch(() => setLoading(false));
-}, [id]);
+}, [id, initialJob]);
 
   async function handleApply(e: React.FormEvent) {
     e.preventDefault();
