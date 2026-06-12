@@ -1,4 +1,4 @@
-# Jobnique.com – Full Job Search Website
+# Jobnique.com – Full Job Search Website..
 
 Built with Next.js 15, Tailwind CSS, ready to deploy on Vercel.
 
