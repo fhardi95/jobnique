@@ -33,15 +33,14 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return [
+      {
+        source: "/ads.txt",
+        destination: "/api/ads-txt",
+      },
+    ];
+  },
 };
 
 export default nextConfig;
-
-async rewrites() {
-  return [
-    {
-      source: "/ads.txt",
-      destination: "/api/ads-txt",
-    },
-  ];
-},
