@@ -36,3 +36,12 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
+async rewrites() {
+  return [
+    {
+      source: "/ads.txt",
+      destination: "/api/ads-txt",
+    },
+  ];
+},
