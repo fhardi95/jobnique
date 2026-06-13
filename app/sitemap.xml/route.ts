@@ -59,6 +59,8 @@ export async function GET() {
     { url: `${base}/jobs`,                     priority: "0.9", changefreq: "hourly"  },
     { url: `${base}/jobs/cities`,              priority: "0.8", changefreq: "weekly"  },
     { url: `${base}/no-experience-jobs`,       priority: "0.9", changefreq: "daily"   },
+    { url: `${base}/entry-level-jobs`,         priority: "0.9", changefreq: "daily"   },
+    { url: `${base}/Find-Visa-Sponsorship-Jobs`, priority: "0.9", changefreq: "daily" },
     { url: `${base}/career-advice`,            priority: "0.8", changefreq: "weekly"  },
     { url: `${base}/interview-tips`,           priority: "0.8", changefreq: "weekly"  },
     { url: `${base}/cv-templates`,             priority: "0.8", changefreq: "monthly" },
@@ -137,6 +139,38 @@ export async function GET() {
     lastmod: today,
   }));
 
+  // ── Entry-level city pages ────────────────────────────────────────────────
+  const entryLevelCityEntries: SitemapEntry[] = NO_EXP_CITIES.map((city) => ({
+    url: `${base}/entry-level-jobs/${city}`,
+    priority: "0.7",
+    changefreq: "daily",
+    lastmod: today,
+  }));
+
+  // ── Entry-level state pages ───────────────────────────────────────────────
+  const entryLevelStateEntries: SitemapEntry[] = NO_EXP_STATES.map((state) => ({
+    url: `${base}/entry-level-jobs/states/${state}`,
+    priority: "0.7",
+    changefreq: "daily",
+    lastmod: today,
+  }));
+
+  // ── Visa sponsorship city pages ───────────────────────────────────────────
+  const visaCityEntries: SitemapEntry[] = NO_EXP_CITIES.map((city) => ({
+    url: `${base}/Find-Visa-Sponsorship-Jobs/${city}`,
+    priority: "0.7",
+    changefreq: "daily",
+    lastmod: today,
+  }));
+
+  // ── Visa sponsorship state pages ──────────────────────────────────────────
+  const visaStateEntries: SitemapEntry[] = NO_EXP_STATES.map((state) => ({
+    url: `${base}/Find-Visa-Sponsorship-Jobs/states/${state}`,
+    priority: "0.7",
+    changefreq: "daily",
+    lastmod: today,
+  }));
+
   // ── ATS job detail pages ──────────────────────────────────────────────────
   const jobEntries: SitemapEntry[] = (jobs ?? []).map((job) => ({
     url: `${base}/jobs/${job.id}`,
@@ -160,6 +194,10 @@ export async function GET() {
     })),
     ...noExpCityEntries,
     ...noExpStateEntries,
+    ...entryLevelCityEntries,
+    ...entryLevelStateEntries,
+    ...visaCityEntries,
+    ...visaStateEntries,
     ...jobEntries,
   ];
 
