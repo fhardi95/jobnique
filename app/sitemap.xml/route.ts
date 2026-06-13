@@ -61,6 +61,7 @@ export async function GET() {
     { url: `${base}/no-experience-jobs`,       priority: "0.9", changefreq: "daily"   },
     { url: `${base}/entry-level-jobs`,         priority: "0.9", changefreq: "daily"   },
     { url: `${base}/Find-Visa-Sponsorship-Jobs`, priority: "0.9", changefreq: "daily" },
+    { url: `${base}/jobs-near-me`,             priority: "0.9", changefreq: "daily"   },
     { url: `${base}/career-advice`,            priority: "0.8", changefreq: "weekly"  },
     { url: `${base}/interview-tips`,           priority: "0.8", changefreq: "weekly"  },
     { url: `${base}/cv-templates`,             priority: "0.8", changefreq: "monthly" },
@@ -171,6 +172,22 @@ export async function GET() {
     lastmod: today,
   }));
 
+  // ── Jobs near me city pages ───────────────────────────────────────────────
+  const jobsNearMeCityEntries: SitemapEntry[] = NO_EXP_CITIES.map((city) => ({
+    url: `${base}/jobs-near-me/${city}`,
+    priority: "0.7",
+    changefreq: "daily",
+    lastmod: today,
+  }));
+
+  // ── Jobs near me state pages ──────────────────────────────────────────────
+  const jobsNearMeStateEntries: SitemapEntry[] = NO_EXP_STATES.map((state) => ({
+    url: `${base}/jobs-near-me/states/${state}`,
+    priority: "0.7",
+    changefreq: "daily",
+    lastmod: today,
+  }));
+
   // ── ATS job detail pages ──────────────────────────────────────────────────
   const jobEntries: SitemapEntry[] = (jobs ?? []).map((job) => ({
     url: `${base}/jobs/${job.id}`,
@@ -198,6 +215,8 @@ export async function GET() {
     ...entryLevelStateEntries,
     ...visaCityEntries,
     ...visaStateEntries,
+    ...jobsNearMeCityEntries,
+    ...jobsNearMeStateEntries,
     ...jobEntries,
   ];
 
